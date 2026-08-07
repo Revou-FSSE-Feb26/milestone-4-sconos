@@ -11,20 +11,12 @@ export class AccountsRepository {
     return this.prisma.accounts.findMany();
   }
 
-  getOneAccount(id: number) {
-    const find = this.prisma.accounts.findUnique({
-      where: { id },
-    });
+  getAllAccountsForUser(userId: number) {
+    return this.prisma.accounts.findMany({ where: { user_id: userId } });
+  }
 
-    if (!find) {
-      return {
-        message: 'Cannot Find Any ${id} Matching Record',
-        status: 404,
-        id: id,
-      };
-    }
-
-    return find;
+  async getOneAccount(id: number) {
+    return this.prisma.accounts.findUnique({ where: { id } });
   }
 
   createAccount(dto: CreateAccountDto) {
@@ -38,23 +30,8 @@ export class AccountsRepository {
     });
   }
 
-  async deleteAccount(id: number) {
-    const deleted = await this.prisma.accounts.delete({
-      where: { id },
-    });
-
-    if (deleted) {
-      return {
-        message: 'Record Deleted',
-        status: 203,
-        id: id,
-      };
-    }
-    return {
-      message: 'Cannot Delete ${id} Record',
-      status: 404,
-      id: id,
-    };
+  deleteAccount(id: number) {
+    return this.prisma.accounts.delete({ where: { id } });
   }
 
   async updateBalance(accountId: number, changeAmount: number) {

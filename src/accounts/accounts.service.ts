@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { UpdateAccountDto } from './dto/update-account.dto';
 import { CreateAccountDto } from './dto/create-account.dto';
 import { AccountsRepository } from './accounts.repository';
@@ -6,30 +6,38 @@ import { AccountsRepository } from './accounts.repository';
 @Injectable()
 export class AccountsService {
   constructor(private readonly accountsRepository: AccountsRepository) {}
-  getAllAccounts() {
-    return this.accountsRepository.getAllAccounts();
+
+  getAllAccounts(userId: number) {
+    return this.accountsRepository.getAllAccountsForUser(userId);
   }
 
-  getOneAccount(id: number) {
-    return this.accountsRepository.getOneAccount(id);
+  async getOneAccount(id: number, userId: number) {
+    const account = await this.accountsRepository.getOneAccount(id);
+
+    if (!account) throw new NotFoundException(`Account with ID ${id} not found`);
+    if (account.user_id !== userId) throw new ForbiddenException();
+
+    return account;
   }
 
-  createAccount(dto: CreateAccountDto) {
-    return this.accountsRepository.createAccount(dto);
+  createAccount(dto: CreateAccountDto, userId: number) {
+    return this.accountsRepository.createAccount({ ...dto, user_id: userId });
   }
 
-  updateAccount(id: number, dto: UpdateAccountDto) {
-    const account = this.accountsRepository.getOneAccount(id);
+  async updateAccount(id: number, dto: UpdateAccountDto, userId: number) {
+    const account = await this.accountsRepository.getOneAccount(id);
 
-    if (!account) return new NotFoundException();
+    if (!account) throw new NotFoundException(`Account with ID ${id} not found`);
+    if (account.user_id !== userId) throw new ForbiddenException();
 
     return this.accountsRepository.updateAccount(id, dto);
   }
 
-  deleteAccount(id: number) {
-    const account = this.accountsRepository.getOneAccount(id);
+  async deleteAccount(id: number, userId: number) {
+    const account = await this.accountsRepository.getOneAccount(id);
 
-    if (!account) return new NotFoundException();
+    if (!account) throw new NotFoundException(`Account with ID ${id} not found`);
+    if (account.user_id !== userId) throw new ForbiddenException();
 
     return this.accountsRepository.deleteAccount(id);
   }
