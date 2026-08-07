@@ -2,7 +2,7 @@
 
 A personal finance tracking backend built with **NestJS**, **Prisma**, and **PostgreSQL**. FinTrack lets users manage multiple accounts (cash, bank, e-wallet), categorize income and expenses, and track transactions with automatic account balance updates.
 
-**Live deployment:** [PASTE_DEPLOYMENT_URL_HERE]
+**Live deployment:** [milestone-4-sconos-production.up.railway.app](https://milestone-4-sconos-production.up.railway.app/)
 
 ---
 
