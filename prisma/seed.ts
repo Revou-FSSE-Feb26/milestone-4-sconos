@@ -1,22 +1,22 @@
 import {
-  PrismaClient, 
-  account_type, 
-  category_type, 
-  transaction_type
+  PrismaClient,
+  AccountType,
+  CategoryType,
+  TransactionType,
 } from '../generated/prisma/client';
 
-const prisma = new (PrismaClient as unknown as new () => PrismaClient)();
+const prisma = new PrismaClient();
 
 async function main() {
   console.log('Cleaning existing data...');
   // Truncate tables to prevent duplication errors on re-runs
-  await prisma.transactions.deleteMany({});
-  await prisma.accounts.deleteMany({});
-  await prisma.categories.deleteMany({});
-  await prisma.users.deleteMany({});
+  await prisma.transaction.deleteMany({});
+  await prisma.account.deleteMany({});
+  await prisma.category.deleteMany({});
+  await prisma.user.deleteMany({});
 
   console.log('Seeding Users...');
-  const user1 = await prisma.users.create({
+  const user1 = await prisma.user.create({
     data: {
       name: 'Alice Johnson',
       email: 'alice@example.com',
@@ -25,7 +25,7 @@ async function main() {
     },
   });
 
-  const user2 = await prisma.users.create({
+  const user2 = await prisma.user.create({
     data: {
       name: 'Bob Smith',
       email: 'bob@example.com',
@@ -34,7 +34,7 @@ async function main() {
     },
   });
 
-  const user3 = await prisma.users.create({
+  const user3 = await prisma.user.create({
     data: {
       name: 'Charlie Brown',
       email: 'charlie@example.com',
@@ -44,85 +44,85 @@ async function main() {
   });
 
   console.log('Seeding Accounts...');
-  const aliceBank = await prisma.accounts.create({
+  const aliceBank = await prisma.account.create({
     data: {
       user_id: user1.id,
       name: 'Alice Checking',
-      type: account_type.bank,
+      type: AccountType.bank,
       balance: 15000000.0,
     },
   });
-  const aliceWallet = await prisma.accounts.create({
+  const aliceWallet = await prisma.account.create({
     data: {
       user_id: user1.id,
       name: 'Alice GoPay',
-      type: account_type.e_wallet,
+      type: AccountType.e_wallet,
       balance: 500000.0,
     },
   });
 
-  const bobBank = await prisma.accounts.create({
+  const bobBank = await prisma.account.create({
     data: {
       user_id: user2.id,
       name: 'Bob Savings',
-      type: account_type.bank,
+      type: AccountType.bank,
       balance: 25000000.0,
     },
   });
-  const bobCash = await prisma.accounts.create({
+  const bobCash = await prisma.account.create({
     data: {
       user_id: user2.id,
       name: 'Bob Wallet',
-      type: account_type.cash,
+      type: AccountType.cash,
       balance: 750000.0,
     },
   });
 
-  const charlieBank = await prisma.accounts.create({
+  const charlieBank = await prisma.account.create({
     data: {
       user_id: user3.id,
       name: 'Charlie Checking',
-      type: account_type.bank,
+      type: AccountType.bank,
       balance: 8000000.0,
     },
   });
-  const charlieWallet = await prisma.accounts.create({
+  const charlieWallet = await prisma.account.create({
     data: {
       user_id: user3.id,
       name: 'Charlie OVO',
-      type: account_type.e_wallet,
+      type: AccountType.e_wallet,
       balance: 350000.0,
     },
   });
 
   console.log('Seeding Categories...');
-  const catSalary = await prisma.categories.create({
-    data: { name: 'Salary', type: category_type.income },
+  const catSalary = await prisma.category.create({
+    data: { name: 'Salary', type: CategoryType.income },
   });
-  const catFreelance = await prisma.categories.create({
-    data: { name: 'Freelance', type: category_type.income },
+  const catFreelance = await prisma.category.create({
+    data: { name: 'Freelance', type: CategoryType.income },
   });
-  const catFood = await prisma.categories.create({
-    data: { name: 'Food & Dining', type: category_type.expense },
+  const catFood = await prisma.category.create({
+    data: { name: 'Food & Dining', type: CategoryType.expense },
   });
-  const catUtilities = await prisma.categories.create({
-    data: { name: 'Utilities', type: category_type.expense },
+  const catUtilities = await prisma.category.create({
+    data: { name: 'Utilities', type: CategoryType.expense },
   });
-  const catTransport = await prisma.categories.create({
-    data: { name: 'Transportation', type: category_type.expense },
+  const catTransport = await prisma.category.create({
+    data: { name: 'Transportation', type: CategoryType.expense },
   });
-  const catEntertainment = await prisma.categories.create({
-    data: { name: 'Entertainment', type: category_type.expense },
+  const catEntertainment = await prisma.category.create({
+    data: { name: 'Entertainment', type: CategoryType.expense },
   });
 
   console.log('Seeding Transactions...');
-  await prisma.transactions.createMany({
+  await prisma.transaction.createMany({
     data: [
       // User 1 Transactions
       {
         account_id: aliceBank.id,
         category_id: catSalary.id,
-        type: transaction_type.income,
+        type: TransactionType.income,
         amount: 10000000.0,
         description: 'Monthly Salary',
         transaction_date: new Date('2026-06-01'),
@@ -130,7 +130,7 @@ async function main() {
       {
         account_id: aliceBank.id,
         category_id: catUtilities.id,
-        type: transaction_type.expense,
+        type: TransactionType.expense,
         amount: 500000.0,
         description: 'Electricity Bill',
         transaction_date: new Date('2026-06-03'),
@@ -138,7 +138,7 @@ async function main() {
       {
         account_id: aliceWallet.id,
         category_id: catFood.id,
-        type: transaction_type.expense,
+        type: TransactionType.expense,
         amount: 75000.0,
         description: 'Lunch',
         transaction_date: new Date('2026-06-05'),
@@ -146,7 +146,7 @@ async function main() {
       {
         account_id: aliceWallet.id,
         category_id: catTransport.id,
-        type: transaction_type.expense,
+        type: TransactionType.expense,
         amount: 30000.0,
         description: 'Taxi fare',
         transaction_date: new Date('2026-06-07'),
@@ -154,7 +154,7 @@ async function main() {
       {
         account_id: aliceBank.id,
         category_id: catEntertainment.id,
-        type: transaction_type.expense,
+        type: TransactionType.expense,
         amount: 150000.0,
         description: 'Cinema ticket',
         transaction_date: new Date('2026-06-10'),
@@ -164,7 +164,7 @@ async function main() {
       {
         account_id: bobBank.id,
         category_id: catSalary.id,
-        type: transaction_type.income,
+        type: TransactionType.income,
         amount: 18000000.0,
         description: 'Base Salary',
         transaction_date: new Date('2026-06-01'),
@@ -172,7 +172,7 @@ async function main() {
       {
         account_id: bobBank.id,
         category_id: catFreelance.id,
-        type: transaction_type.income,
+        type: TransactionType.income,
         amount: 5000000.0,
         description: 'Web Dev Project',
         transaction_date: new Date('2026-06-04'),
@@ -180,7 +180,7 @@ async function main() {
       {
         account_id: bobCash.id,
         category_id: catFood.id,
-        type: transaction_type.expense,
+        type: TransactionType.expense,
         amount: 120000.0,
         description: 'Groceries',
         transaction_date: new Date('2026-06-06'),
@@ -188,7 +188,7 @@ async function main() {
       {
         account_id: bobCash.id,
         category_id: catTransport.id,
-        type: transaction_type.expense,
+        type: TransactionType.expense,
         amount: 200000.0,
         description: 'Fuel',
         transaction_date: new Date('2026-06-08'),
@@ -196,7 +196,7 @@ async function main() {
       {
         account_id: bobBank.id,
         category_id: catUtilities.id,
-        type: transaction_type.expense,
+        type: TransactionType.expense,
         amount: 800000.0,
         description: 'Internet & WiFi',
         transaction_date: new Date('2026-06-12'),
@@ -204,7 +204,7 @@ async function main() {
       {
         account_id: bobCash.id,
         category_id: catFood.id,
-        type: transaction_type.expense,
+        type: TransactionType.expense,
         amount: 45000.0,
         description: 'Coffee',
         transaction_date: new Date('2026-06-15'),
@@ -212,7 +212,7 @@ async function main() {
       {
         account_id: bobBank.id,
         category_id: catEntertainment.id,
-        type: transaction_type.expense,
+        type: TransactionType.expense,
         amount: 300000.0,
         description: 'Concert Ticket',
         transaction_date: new Date('2026-06-18'),
@@ -222,7 +222,7 @@ async function main() {
       {
         account_id: charlieBank.id,
         category_id: catSalary.id,
-        type: transaction_type.income,
+        type: TransactionType.income,
         amount: 7000000.0,
         description: 'Part-time Pay',
         transaction_date: new Date('2026-06-02'),
@@ -230,7 +230,7 @@ async function main() {
       {
         account_id: charlieWallet.id,
         category_id: catFood.id,
-        type: transaction_type.expense,
+        type: TransactionType.expense,
         amount: 50000.0,
         description: 'Dinner',
         transaction_date: new Date('2026-06-04'),
@@ -238,7 +238,7 @@ async function main() {
       {
         account_id: charlieBank.id,
         category_id: catUtilities.id,
-        type: transaction_type.expense,
+        type: TransactionType.expense,
         amount: 250000.0,
         description: 'Water Bill',
         transaction_date: new Date('2026-06-09'),
@@ -246,7 +246,7 @@ async function main() {
       {
         account_id: charlieWallet.id,
         category_id: catTransport.id,
-        type: transaction_type.expense,
+        type: TransactionType.expense,
         amount: 25000.0,
         description: 'Bus pass',
         transaction_date: new Date('2026-06-11'),
@@ -254,7 +254,7 @@ async function main() {
       {
         account_id: charlieBank.id,
         category_id: catFood.id,
-        type: transaction_type.expense,
+        type: TransactionType.expense,
         amount: 150000.0,
         description: 'Weekly groceries',
         transaction_date: new Date('2026-06-14'),
@@ -262,7 +262,7 @@ async function main() {
       {
         account_id: charlieWallet.id,
         category_id: catEntertainment.id,
-        type: transaction_type.expense,
+        type: TransactionType.expense,
         amount: 100000.0,
         description: 'Gaming subscription',
         transaction_date: new Date('2026-06-16'),
@@ -270,7 +270,7 @@ async function main() {
       {
         account_id: charlieBank.id,
         category_id: catFreelance.id,
-        type: transaction_type.income,
+        type: TransactionType.income,
         amount: 1500000.0,
         description: 'Logo Design',
         transaction_date: new Date('2026-06-20'),
@@ -278,7 +278,7 @@ async function main() {
       {
         account_id: charlieWallet.id,
         category_id: catFood.id,
-        type: transaction_type.expense,
+        type: TransactionType.expense,
         amount: 35000.0,
         description: 'Snacks',
         transaction_date: new Date('2026-06-22'),
