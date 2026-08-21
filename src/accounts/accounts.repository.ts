@@ -8,34 +8,34 @@ export class AccountsRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   getAllAccounts() {
-    return this.prisma.accounts.findMany();
+    return this.prisma.account.findMany();
   }
 
   getAllAccountsForUser(userId: number) {
-    return this.prisma.accounts.findMany({ where: { user_id: userId } });
+    return this.prisma.account.findMany({ where: { user_id: userId } });
   }
 
   async getOneAccount(id: number) {
-    return this.prisma.accounts.findUnique({ where: { id } });
+    return this.prisma.account.findUnique({ where: { id } });
   }
 
-  createAccount(dto: CreateAccountDto) {
-    return this.prisma.accounts.create({ data: dto });
+  createAccount(dto: CreateAccountDto & { user_id: number }) {
+    return this.prisma.account.create({ data: dto });
   }
 
   updateAccount(id: number, dto: UpdateAccountDto) {
-    return this.prisma.accounts.update({
+    return this.prisma.account.update({
       where: { id },
       data: dto,
     });
   }
 
   deleteAccount(id: number) {
-    return this.prisma.accounts.delete({ where: { id } });
+    return this.prisma.account.delete({ where: { id } });
   }
 
   async updateBalance(accountId: number, changeAmount: number) {
-    return this.prisma.accounts.update({
+    return this.prisma.account.update({
       where: { id: accountId },
       data: { balance: { increment: changeAmount } },
     });

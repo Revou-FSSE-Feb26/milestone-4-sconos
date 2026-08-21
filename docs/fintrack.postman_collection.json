@@ -14,6 +14,26 @@
       "key": "token",
       "value": "",
       "type": "string"
+    },
+    {
+      "key": "user_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "account_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "category_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "transaction_id",
+      "value": "",
+      "type": "string"
     }
   ],
   "item": [
@@ -49,7 +69,28 @@
               "type": "noauth"
             }
           },
-          "response": []
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201 (Created)', function () {",
+                  "    pm.expect([201, 200]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test(\"Response has 'id'\", function () {",
+                  "    const data = pm.response.json();",
+                  "    pm.expect(data).to.have.property('id');",
+                  "});",
+                  "pm.test(\"Response has 'email'\", function () {",
+                  "    const data = pm.response.json();",
+                  "    pm.expect(data).to.have.property('email');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
         },
         {
           "name": "Register - Validation Error (invalid email, short password)",
@@ -80,7 +121,24 @@
               "type": "noauth"
             }
           },
-          "response": []
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 400 (Bad Request)', function () {",
+                  "    pm.expect([400]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test('Response has an error message', function () {",
+                  "    const data = pm.response.json();",
+                  "    pm.expect(data).to.have.property('message');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
         },
         {
           "name": "Login - Success (saves token)",
@@ -95,6 +153,9 @@
                   "}",
                   "pm.test('Status is 200', function () {",
                   "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Response has access_token', function () {",
+                  "    pm.expect(data).to.have.property('access_token');",
                   "});"
                 ],
                 "type": "text/javascript"
@@ -159,7 +220,24 @@
               "type": "noauth"
             }
           },
-          "response": []
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 401 (Unauthorized)', function () {",
+                  "    pm.expect([401]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test('Response has an error message', function () {",
+                  "    const data = pm.response.json();",
+                  "    pm.expect(data).to.have.property('message');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
         }
       ]
     },
@@ -191,7 +269,23 @@
               ]
             }
           },
-          "response": []
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.expect([200]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test('Response is an array', function () {",
+                  "    pm.expect(pm.response.json()).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
         },
         {
           "name": "Get User by ID",
@@ -199,13 +293,13 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/users/1",
+              "raw": "{{base_url}}/users/{{user_id}}",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
                 "users",
-                "1"
+                "{{user_id}}"
               ]
             },
             "auth": {
@@ -219,7 +313,24 @@
               ]
             }
           },
-          "response": []
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.expect([200]).to.include(pm.response.code);",
+                  "});",
+                  "const data = pm.response.json();",
+                  "pm.test('Returned user matches requested id', function () {",
+                  "    pm.expect(String(data.id)).to.eql(pm.collectionVariables.get('user_id'));",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
         },
         {
           "name": "Create User - Success",
@@ -256,7 +367,35 @@
               ]
             }
           },
-          "response": []
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201 (Created)', function () {",
+                  "    pm.expect([201, 200]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test(\"Response has 'id'\", function () {",
+                  "    const data = pm.response.json();",
+                  "    pm.expect(data).to.have.property('id');",
+                  "});",
+                  "pm.test(\"Response has 'email'\", function () {",
+                  "    const data = pm.response.json();",
+                  "    pm.expect(data).to.have.property('email');",
+                  "});",
+                  "const data = pm.response.json();",
+                  "if (data && data.id) {",
+                  "    pm.collectionVariables.set('user_id', data.id);",
+                  "    pm.test('Saved user_id', function () {",
+                  "        pm.expect(data.id).to.not.be.undefined;",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
         },
         {
           "name": "Create User - Validation Error (bad email, short password)",
@@ -293,7 +432,24 @@
               ]
             }
           },
-          "response": []
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 400', function () {",
+                  "    pm.expect([400]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test('Response has an error message', function () {",
+                  "    const data = pm.response.json();",
+                  "    pm.expect(data).to.have.property('message');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
         },
         {
           "name": "Update User",
@@ -307,13 +463,13 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/users/1",
+              "raw": "{{base_url}}/users/{{user_id}}",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
                 "users",
-                "1"
+                "{{user_id}}"
               ]
             },
             "body": {
@@ -331,7 +487,24 @@
               ]
             }
           },
-          "response": []
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.expect([200]).to.include(pm.response.code);",
+                  "});",
+                  "const data = pm.response.json();",
+                  "pm.test('Name was updated', function () {",
+                  "    pm.expect(data.name).to.eql('Jane Updated');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
         },
         {
           "name": "Delete User",
@@ -339,13 +512,13 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/users/1",
+              "raw": "{{base_url}}/users/{{user_id}}",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
                 "users",
-                "1"
+                "{{user_id}}"
               ]
             },
             "auth": {
@@ -359,7 +532,20 @@
               ]
             }
           },
-          "response": []
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200/204 (Deleted)', function () {",
+                  "    pm.expect([200, 204]).to.include(pm.response.code);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
         }
       ]
     },
@@ -391,7 +577,23 @@
               ]
             }
           },
-          "response": []
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.expect([200]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test('Response is an array', function () {",
+                  "    pm.expect(pm.response.json()).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
         },
         {
           "name": "Get Accounts - Blocked (no token, 401)",
@@ -411,7 +613,20 @@
               "type": "noauth"
             }
           },
-          "response": []
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 401', function () {",
+                  "    pm.expect([401]).to.include(pm.response.code);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
         },
         {
           "name": "Get Account by ID",
@@ -419,13 +634,13 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/accounts/1",
+              "raw": "{{base_url}}/accounts/{{account_id}}",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
                 "accounts",
-                "1"
+                "{{account_id}}"
               ]
             },
             "auth": {
@@ -439,7 +654,24 @@
               ]
             }
           },
-          "response": []
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.expect([200]).to.include(pm.response.code);",
+                  "});",
+                  "const data = pm.response.json();",
+                  "pm.test('Returned account matches requested id', function () {",
+                  "    pm.expect(String(data.id)).to.eql(pm.collectionVariables.get('account_id'));",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
         },
         {
           "name": "Create Account - Success",
@@ -476,7 +708,35 @@
               ]
             }
           },
-          "response": []
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201 (Created)', function () {",
+                  "    pm.expect([201, 200]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test(\"Response has 'id'\", function () {",
+                  "    const data = pm.response.json();",
+                  "    pm.expect(data).to.have.property('id');",
+                  "});",
+                  "pm.test(\"Response has 'balance'\", function () {",
+                  "    const data = pm.response.json();",
+                  "    pm.expect(data).to.have.property('balance');",
+                  "});",
+                  "const data = pm.response.json();",
+                  "if (data && data.id) {",
+                  "    pm.collectionVariables.set('account_id', data.id);",
+                  "    pm.test('Saved account_id', function () {",
+                  "        pm.expect(data.id).to.not.be.undefined;",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
         },
         {
           "name": "Create Account - Validation Error (invalid type, negative balance)",
@@ -513,7 +773,24 @@
               ]
             }
           },
-          "response": []
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 400', function () {",
+                  "    pm.expect([400]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test('Response has an error message', function () {",
+                  "    const data = pm.response.json();",
+                  "    pm.expect(data).to.have.property('message');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
         },
         {
           "name": "Update Account",
@@ -527,13 +804,13 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/accounts/1",
+              "raw": "{{base_url}}/accounts/{{account_id}}",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
                 "accounts",
-                "1"
+                "{{account_id}}"
               ]
             },
             "body": {
@@ -551,7 +828,24 @@
               ]
             }
           },
-          "response": []
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.expect([200]).to.include(pm.response.code);",
+                  "});",
+                  "const data = pm.response.json();",
+                  "pm.test('Balance was updated', function () {",
+                  "    pm.expect(Number(data.balance)).to.eql(750000);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
         },
         {
           "name": "Delete Account",
@@ -559,13 +853,13 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/accounts/1",
+              "raw": "{{base_url}}/accounts/{{account_id}}",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
                 "accounts",
-                "1"
+                "{{account_id}}"
               ]
             },
             "auth": {
@@ -579,7 +873,20 @@
               ]
             }
           },
-          "response": []
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200/204 (Deleted)', function () {",
+                  "    pm.expect([200, 204]).to.include(pm.response.code);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
         }
       ]
     },
@@ -611,7 +918,23 @@
               ]
             }
           },
-          "response": []
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.expect([200]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test('Response is an array', function () {",
+                  "    pm.expect(pm.response.json()).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
         },
         {
           "name": "Get Category by ID",
@@ -619,13 +942,13 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/categories/1",
+              "raw": "{{base_url}}/categories/{{category_id}}",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
                 "categories",
-                "1"
+                "{{category_id}}"
               ]
             },
             "auth": {
@@ -639,7 +962,24 @@
               ]
             }
           },
-          "response": []
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.expect([200]).to.include(pm.response.code);",
+                  "});",
+                  "const data = pm.response.json();",
+                  "pm.test('Returned category matches requested id', function () {",
+                  "    pm.expect(String(data.id)).to.eql(pm.collectionVariables.get('category_id'));",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
         },
         {
           "name": "Create Category - Success",
@@ -676,7 +1016,35 @@
               ]
             }
           },
-          "response": []
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201 (Created)', function () {",
+                  "    pm.expect([201, 200]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test(\"Response has 'id'\", function () {",
+                  "    const data = pm.response.json();",
+                  "    pm.expect(data).to.have.property('id');",
+                  "});",
+                  "pm.test(\"Response has 'name'\", function () {",
+                  "    const data = pm.response.json();",
+                  "    pm.expect(data).to.have.property('name');",
+                  "});",
+                  "const data = pm.response.json();",
+                  "if (data && data.id) {",
+                  "    pm.collectionVariables.set('category_id', data.id);",
+                  "    pm.test('Saved category_id', function () {",
+                  "        pm.expect(data.id).to.not.be.undefined;",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
         },
         {
           "name": "Create Category - Validation Error (empty name, invalid type)",
@@ -713,7 +1081,24 @@
               ]
             }
           },
-          "response": []
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 400', function () {",
+                  "    pm.expect([400]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test('Response has an error message', function () {",
+                  "    const data = pm.response.json();",
+                  "    pm.expect(data).to.have.property('message');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
         },
         {
           "name": "Update Category",
@@ -727,13 +1112,13 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/categories/1",
+              "raw": "{{base_url}}/categories/{{category_id}}",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
                 "categories",
-                "1"
+                "{{category_id}}"
               ]
             },
             "body": {
@@ -751,7 +1136,24 @@
               ]
             }
           },
-          "response": []
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.expect([200]).to.include(pm.response.code);",
+                  "});",
+                  "const data = pm.response.json();",
+                  "pm.test('Name was updated', function () {",
+                  "    pm.expect(data.name).to.eql('Groceries & Household');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
         },
         {
           "name": "Delete Category",
@@ -759,13 +1161,13 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/categories/1",
+              "raw": "{{base_url}}/categories/{{category_id}}",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
                 "categories",
-                "1"
+                "{{category_id}}"
               ]
             },
             "auth": {
@@ -779,7 +1181,20 @@
               ]
             }
           },
-          "response": []
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200/204 (Deleted)', function () {",
+                  "    pm.expect([200, 204]).to.include(pm.response.code);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
         }
       ]
     },
@@ -811,7 +1226,23 @@
               ]
             }
           },
-          "response": []
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.expect([200]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test('Response is an array', function () {",
+                  "    pm.expect(pm.response.json()).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
         },
         {
           "name": "Get Transactions - Blocked (no token, 401)",
@@ -831,7 +1262,20 @@
               "type": "noauth"
             }
           },
-          "response": []
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 401', function () {",
+                  "    pm.expect([401]).to.include(pm.response.code);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
         },
         {
           "name": "Get Transaction by ID",
@@ -839,13 +1283,13 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/transactions/1",
+              "raw": "{{base_url}}/transactions/{{transaction_id}}",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
                 "transactions",
-                "1"
+                "{{transaction_id}}"
               ]
             },
             "auth": {
@@ -859,7 +1303,24 @@
               ]
             }
           },
-          "response": []
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.expect([200]).to.include(pm.response.code);",
+                  "});",
+                  "const data = pm.response.json();",
+                  "pm.test('Returned transaction matches requested id', function () {",
+                  "    pm.expect(String(data.id)).to.eql(pm.collectionVariables.get('transaction_id'));",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
         },
         {
           "name": "Create Transaction - Success",
@@ -896,7 +1357,35 @@
               ]
             }
           },
-          "response": []
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201 (Created)', function () {",
+                  "    pm.expect([201, 200]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test(\"Response has 'id'\", function () {",
+                  "    const data = pm.response.json();",
+                  "    pm.expect(data).to.have.property('id');",
+                  "});",
+                  "pm.test(\"Response has 'amount'\", function () {",
+                  "    const data = pm.response.json();",
+                  "    pm.expect(data).to.have.property('amount');",
+                  "});",
+                  "const data = pm.response.json();",
+                  "if (data && data.id) {",
+                  "    pm.collectionVariables.set('transaction_id', data.id);",
+                  "    pm.test('Saved transaction_id', function () {",
+                  "        pm.expect(data.id).to.not.be.undefined;",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
         },
         {
           "name": "Create Transaction - Validation Error (negative amount, bad date)",
@@ -933,7 +1422,24 @@
               ]
             }
           },
-          "response": []
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 400', function () {",
+                  "    pm.expect([400]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test('Response has an error message', function () {",
+                  "    const data = pm.response.json();",
+                  "    pm.expect(data).to.have.property('message');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
         },
         {
           "name": "Update Transaction",
@@ -947,13 +1453,13 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/transactions/1",
+              "raw": "{{base_url}}/transactions/{{transaction_id}}",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
                 "transactions",
-                "1"
+                "{{transaction_id}}"
               ]
             },
             "body": {
@@ -971,7 +1477,24 @@
               ]
             }
           },
-          "response": []
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.expect([200]).to.include(pm.response.code);",
+                  "});",
+                  "const data = pm.response.json();",
+                  "pm.test('Amount was updated', function () {",
+                  "    pm.expect(Number(data.amount)).to.eql(60000);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
         },
         {
           "name": "Delete Transaction",
@@ -979,13 +1502,13 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/transactions/1",
+              "raw": "{{base_url}}/transactions/{{transaction_id}}",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
                 "transactions",
-                "1"
+                "{{transaction_id}}"
               ]
             },
             "auth": {
@@ -999,7 +1522,20 @@
               ]
             }
           },
-          "response": []
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200/204 (Deleted)', function () {",
+                  "    pm.expect([200, 204]).to.include(pm.response.code);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
         }
       ]
     }

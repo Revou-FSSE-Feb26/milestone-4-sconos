@@ -1,0 +1,87 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id         Int       @id @default(autoincrement())
+  name       String    @db.VarChar(100)
+  email      String    @unique @db.VarChar(100)
+  password   String    @db.VarChar(100)
+  role       Role      @default(user)
+  created_at DateTime? @default(now()) @db.Timestamp(6)
+  accounts   Account[]
+
+  @@map("user")
+}
+
+model Account {
+  id           Int           @id @default(autoincrement())
+  user_id      Int
+  name         String        @db.VarChar(100)
+  type         AccountType
+  balance      Decimal?      @default(0) @db.Decimal(12, 2)
+  created_at   DateTime?     @default(now()) @db.Timestamp(6)
+  user         User          @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  transactions Transaction[]
+
+  @@map("account")
+}
+
+model Category {
+  id           Int           @id @default(autoincrement())
+  name         String        @db.VarChar(100)
+  type         CategoryType
+  transactions Transaction[]
+
+  @@map("category")
+}
+
+model Transaction {
+  id               Int             @id @default(autoincrement())
+  account_id       Int
+  category_id      Int
+  type             TransactionType
+  amount           Decimal         @db.Decimal(12, 2)
+  description      String?
+  transaction_date DateTime        @db.Date
+  created_at       DateTime?       @default(now()) @db.Timestamp(6)
+  account          Account         @relation(fields: [account_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  category         Category        @relation(fields: [category_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("transaction")
+}
+
+enum AccountType {
+  cash
+  bank
+  e_wallet @map("e-wallet")
+
+  @@map("account_type")
+}
+
+enum CategoryType {
+  income
+  expense
+
+  @@map("category_type")
+}
+
+enum TransactionType {
+  income
+  expense
+  transfer
+
+  @@map("transaction_type")
+}
+
+enum Role {
+  user
+  admin
+
+  @@map("role")
+}

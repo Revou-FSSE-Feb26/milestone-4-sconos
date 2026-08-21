@@ -35,7 +35,7 @@ Every account and transaction is scoped to the user who owns it; users can only 
 
 ## Entity-Relationship Diagram
 
-![FinTrack ERD](./docs/erd.png)
+![FinTrack ERD](./docs/ERD.png)
 
 **Relationships:**
 - One `User` has many `Accounts`
@@ -127,7 +127,7 @@ psql -U your_user -d fintrack -f db/queries.sql
 - **JWT:** issued on successful login, required (via a guard) on all `accounts` and `transactions` routes.
 - **Ownership enforcement:** every resource access checks that the authenticated user owns the account/transaction being accessed — users cannot read or modify another user's data.
 - **RBAC:** a `role` field (`user` | `admin`) on the `User` model, with an RBAC guard restricting at least one admin-only action.
-- **Rate limiting:** applied to `POST /auth/login` to slow down brute-force attempts.
+- **Rate limiting:** a global throttler (ThrottlerModule + APP_GUARD) limits all requests, including login, to 10 requests/60s per client.
 - **CORS:** explicitly configured rather than left permissive by default.
 - **Helmet:** enabled globally for standard HTTP security headers.
 

@@ -18,19 +18,11 @@ export class CategoriesService {
     return this.categoriesRepository.createCategory(dto);
   }
 
-  updateCategory(id: number, dto: UpdateCategoryDto) {
-    const category = this.categoriesRepository.getOneCategory(id);
-
-    if (!category) return new NotFoundException();
-
+  async updateCategory(id: number, dto: UpdateCategoryDto) {
     return this.categoriesRepository.updateCategory(id, dto);
   }
 
-  deleteCategory(id: number) {
-    const category = this.categoriesRepository.getOneCategory(id);
-
-    if (!category) return new NotFoundException();
-
+  async deleteCategory(id: number) {
     return this.categoriesRepository.deleteCategory(id);
   }
 }

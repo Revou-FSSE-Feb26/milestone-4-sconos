@@ -19,19 +19,11 @@ export class UsersService {
     return this.usersRepository.createUser(dto);
   }
 
-  updateUser(id: number, dto: UpdateUserDto) {
-    const user = this.usersRepository.getOneUser(id);
-
-    if (!user) return new NotFoundException();
-
+  async updateUser(id: number, dto: UpdateUserDto) {
     return this.usersRepository.updateUser(id, dto);
   }
 
-  deleteUser(id: number) {
-    const user = this.usersRepository.getOneUser(id);
-
-    if (!user) return new NotFoundException();
-
+  async deleteUser(id: number) {
     return this.usersRepository.deleteUser(id);
   }
 }

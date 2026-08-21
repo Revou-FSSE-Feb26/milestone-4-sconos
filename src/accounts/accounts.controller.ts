@@ -13,45 +13,27 @@ export class AccountsController {
   constructor(private readonly accountsService: AccountsService) {}
 
   @Get()
-  @ApiOperation({ summary: 'Get all accounts for the logged-in user' })
-  @ApiResponse({ status: 200, description: 'List of accounts' })
   getAllAccounts(@Req() req: any) {
-    return this.accountsService.getAllAccounts(req.user.id);
+    return this.accountsService.getAllAccounts(req.user.sub);
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Get an account by ID' })
-  @ApiParam({ name: 'id', type: Number })
-  @ApiResponse({ status: 200, description: 'Account found' })
-  @ApiResponse({ status: 404, description: 'Account not found' })
   getOneAccount(@Param('id', ParseIntPipe) id: number, @Req() req: any) {
-    return this.accountsService.getOneAccount(id, req.user.id);
+    return this.accountsService.getOneAccount(id, req.user.sub);
   }
 
   @Post()
-  @ApiOperation({ summary: 'Create a new account' })
-  @ApiResponse({ status: 201, description: 'Account created' })
   createAccount(@Body() dto: CreateAccountDto, @Req() req: any) {
-    return this.accountsService.createAccount(dto, req.user.id);
+    return this.accountsService.createAccount(dto, req.user.sub);
   }
 
   @Patch(':id')
-  @ApiOperation({ summary: 'Update an account' })
-  @ApiParam({ name: 'id', type: Number })
-  @ApiResponse({ status: 200, description: 'Account updated' })
-  updateAccount(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() dto: UpdateAccountDto,
-    @Req() req: any,
-  ) {
-    return this.accountsService.updateAccount(id, dto, req.user.id);
+  updateAccount(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateAccountDto, @Req() req: any) {
+    return this.accountsService.updateAccount(id, dto, req.user.sub);
   }
 
   @Delete(':id')
-  @ApiOperation({ summary: 'Delete an account' })
-  @ApiParam({ name: 'id', type: Number })
-  @ApiResponse({ status: 200, description: 'Account deleted' })
   deleteAccount(@Param('id', ParseIntPipe) id: number, @Req() req: any) {
-    return this.accountsService.deleteAccount(id, req.user.id);
+    return this.accountsService.deleteAccount(id, req.user.sub);
   }
 }

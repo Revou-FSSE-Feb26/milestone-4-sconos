@@ -9,13 +9,13 @@ export class AuthRepository {
   // includes the password hash on purpose: AuthService needs it to
   // compare during login. Never return this object straight to a controller.
   getByEmail(email: string) {
-    return this.prisma.users.findUnique({
+    return this.prisma.user.findUnique({
       where: { email },
     });
   }
 
   createUser(dto: RegisterDto, hashedPassword: string) {
-    return this.prisma.users.create({
+    return this.prisma.user.create({
       data: {
         name: dto.name,
         email: dto.email,

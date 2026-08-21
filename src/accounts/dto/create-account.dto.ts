@@ -10,23 +10,18 @@ import {
   Min,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { account_type } from 'generated/prisma/browser';
+import { AccountType } from '../account-type.enum';
 
 export class CreateAccountDto {
-  @ApiProperty({ example: 1 })
-  @IsInt()
-  @IsPositive()
-  user_id!: number;
-
   @ApiProperty({ example: 'Main Wallet', maxLength: 100 })
   @IsString()
   @IsNotEmpty()
   @MaxLength(100)
   name!: string;
 
-  @ApiProperty({ enum: account_type, example: Object.values(account_type)[0] })
-  @IsEnum(account_type)
-  type!: account_type;
+  @ApiProperty({ enum: AccountType, example: Object.values(AccountType)[0] })
+  @IsEnum(AccountType)
+  type!: AccountType;
 
   @ApiPropertyOptional({ example: 500000, minimum: 0 })
   @IsOptional()

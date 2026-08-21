@@ -1,30 +1,25 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateTransactionDto } from './dto/create-transaction.dto';
-import { UpdateTransactionDto } from './dto/update-transaction.dto';
 
 @Injectable()
 export class TransactionsRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getAllTransactions() {
-    return this.prisma.transactions.findMany({
-      include: {
-        categories: true,
-      },
+  async getAllTransactionsForUser(userId: number) {
+    return this.prisma.transaction.findMany({
+      where: { account: { user_id: userId } },
+      include: { category: true },
     });
   }
 
   async getOneTransaction(id: number) {
-    const transaction = await this.prisma.transactions.findUnique({
+    const transaction = await this.prisma.transaction.findUnique({
       where: { id },
-      include: {
-        categories: true,
-      },
+      include: { category: true, account: true },
     });
 
     if (!transaction) {
-      throw new NotFoundException(`Cannot find any matching record for ID ${id}`);
+      throw new NotFoundException(`Transaction with ID ${id} not found`);
     }
 
     return transaction;
